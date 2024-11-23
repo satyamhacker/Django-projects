@@ -1,0 +1,331 @@
+1. Add User
+Example: An admin adds a new employee, John, to the system.
+The admin enters John’s details like username, email, and password through the dashboard.
+Once added, John can log into the system with his credentials.
+
+2. Remove User
+Example: If an employee, Jane, leaves the organization, the admin can delete Jane's account.
+This ensures Jane cannot log in or access the system anymore.
+
+3. Add User Details
+Example: After creating John’s account, the admin can update more information about him, like:
+Job title: Sales Manager.
+Department: Sales.
+Phone number: 123-456-7890.
+
+4. Assign Roles and Permissions
+Roles define a group of permissions for convenience.
+Example:
+John is assigned the role of Sales Manager, which allows him to:
+Add new sales data.
+Edit existing sales records.
+Jane is assigned the role of Viewer, which only allows her to view the sales data but not make changes.
+
+5. Create New Roles
+Example: The company introduces a new position, Regional Manager.
+The admin can create a new role, Regional Manager, and assign it specific permissions like:
+Accessing regional sales reports.
+Approving or rejecting proposals from sales teams.
+
+6. Create New Permissions
+Permissions are specific actions a user can perform.
+Example: The admin creates a new permission, Can Export Reports, for users who need to generate and download reports in Excel format.
+
+7. Generate Access and Refresh Tokens
+Tokens ensure secure access to the system:
+Access Token: A short-term token (e.g., valid for 15 minutes) to allow users to perform actions.
+Refresh Token: A long-term token (e.g., valid for 7 days) to request a new access token without logging in again.
+Example: When John logs in, he gets both tokens. If his session expires, the refresh token ensures he doesn’t have to log in again unless it also expires.
+
+8. Reset Password
+Example: John forgets his password.
+He clicks a "Forgot Password" button on the login screen.
+The system sends a reset link to John’s email, where he can securely create a new password.
+
+===================================Folder and files structure=====================================
+Here’s a suggested project folder structure and file organization for your Django project. This structure is designed to support the functionality you've mentioned, including user management, roles and permissions, and secure authentication. It also supports the addition of a JWT-based authentication system for token generation (access and refresh tokens).
+
+### Project Folder Structure:
+
+```
+my_django_project/
+│
+├── manage.py                 # Django's command-line utility
+├── my_django_project/         # Project folder (root folder)
+│   ├── __init__.py            # Marks the directory as a Python package
+│   ├── settings.py            # Settings for the project (database, apps, middleware, etc.)
+│   ├── urls.py                # URL routing for the project
+│   ├── wsgi.py                # WSGI application for deploying with a server
+│   ├── asgi.py                # ASGI application for WebSocket support (if needed)
+│
+├── apps/                      # Custom apps
+│   ├── __init__.py            # Marks the directory as a Python package
+│   ├── users/                 # User management app
+│   │   ├── __init__.py        # Marks the directory as a Python package
+│   │   ├── models.py          # User, role, and permission models
+│   │   ├── views.py           # Views for user CRUD operations, login, etc.
+│   │   ├── serializers.py     # Serializers for transforming data
+│   │   ├── urls.py            # URL routing for user-related endpoints
+│   │   ├── permissions.py     # Custom permissions for role-based access control
+│   │   ├── services.py        # Business logic (e.g., password reset)
+│   │   ├── tokens.py          # Token generation and validation (Access, Refresh)
+│   │   └── tests/             # Unit tests for user functionality
+│   │       ├── __init__.py
+│   │       ├── test_user.py   # Test cases for user CRUD and authentication
+│   │       └── test_token.py  # Test cases for token generation and validation
+│   │
+│   ├── roles/                 # Roles management app (optional)
+│   │   ├── __init__.py        # Marks the directory as a Python package
+│   │   ├── models.py          # Role and permission models
+│   │   ├── views.py           # Views for creating and managing roles
+│   │   ├── serializers.py     # Serializers for roles and permissions
+│   │   ├── urls.py            # URL routing for roles-related endpoints
+│   │   └── tests/             # Unit tests for role management
+│   │       ├── __init__.py
+│   │       ├── test_roles.py  # Test cases for roles management
+│   │       └── test_permissions.py # Test cases for permissions handling
+│   │
+│   ├── auth/                  # Authentication app for handling login, password reset
+│   │   ├── __init__.py        # Marks the directory as a Python package
+│   │   ├── views.py           # Views for login, logout, and password reset
+│   │   ├── serializers.py     # Serializer for authentication (e.g., Login serializer)
+│   │   ├── urls.py            # URL routing for auth-related endpoints
+│   │   └── tests/             # Unit tests for auth functionality
+│   │       ├── __init__.py
+│   │       ├── test_login.py  # Test cases for login functionality
+│   │       └── test_reset.py  # Test cases for password reset
+│
+├── middleware/                # Custom middleware folder (for request logging, etc.)
+│   ├── __init__.py            # Marks the directory as a Python package
+│   ├── request_logging.py     # Custom middleware for logging requests
+│
+├── static/                    # Static files (CSS, JS, images, etc.)
+│
+├── templates/                 # Template files (HTML files)
+│
+├── db.sqlite3                 # SQLite database file (or MySQL if configured)
+│
+├── requirements.txt           # List of Python packages required for the project
+└── .env                       # Environment variables (database credentials, secret keys, etc.)
+
+```
+Here’s the corrected breakdown of the files and folders based on the updated structure, removing unnecessary files like tokens.py from the users app and centralizing token management with middleware:
+
+Corrected File Breakdown:
+my_django_project/settings.py
+
+Configure project settings:
+Database (MySQL or SQLite).
+Installed apps (users, roles, auth, rest_framework, etc.).
+Middleware, including the JWT middleware for token handling.
+REST framework configurations, including authentication classes and JWT settings.
+
+
+users/models.py
+
+Define the user model with necessary fields like:
+username, email, password, etc.
+Include methods for managing user roles and permissions.
+
+
+roles/models.py
+
+Define models for:
+Roles: E.g., Admin, Sales Manager, Viewer.
+Permissions: E.g., Can Export Reports, Can Edit Sales Data.
+Include a many-to-many relationship between roles and permissions for flexibility.
+
+
+auth/views.py
+
+Define views for authentication actions:
+Login: Validate credentials and return access and refresh tokens.
+Logout: Invalidate refresh tokens (optional).
+Password Reset: Handle "forgot password" flows, including email links and password updates.
+
+
+middleware/jwt_middleware.py
+
+Manage JWT authentication globally:
+Validate and decode JWT access tokens.
+Handle expired or invalid tokens.
+Provide a utility method to generate JWT tokens (both access and refresh).
+
+
+users/permissions.py
+
+Define custom permissions for role-based access control, such as:
+IsAdmin: Only admins can access certain views.
+CanEditSalesData: Permission for users who can edit sales data.
+IsSalesManager: Permission for users with the Sales Manager role.
+
+
+users/services.py
+
+Encapsulate business logic such as:
+Sending password reset emails.
+Updating user details.
+Role assignment and permission handling.
+
+
+middleware/request_logging.py
+
+Log incoming HTTP requests for:
+Debugging.
+Monitoring API usage.
+Recording errors or unusual behavior.
+
+users/tests/test_user.py
+
+Unit tests for user management, covering:
+Adding, updating, and deleting users.
+Assigning roles and permissions.
+Validating user input and error handling.
+
+roles/tests/test_roles.py
+
+Unit tests for role and permission management, including:
+Creating roles and permissions.
+Assigning roles to users.
+Verifying access control based on permissions.
+
+auth/tests/test_reset.py
+
+Unit tests for authentication functionality, such as:
+Login with valid/invalid credentials.
+Password reset flow (email validation, token expiration, etc.).
+Token generation and expiration handling.
+Summary of Key Features:
+User Management:
+
+Perform CRUD operations for users (add, remove, update user details).
+Assign roles and manage permissions for individual users.
+Roles & Permissions:
+
+Create new roles and permissions.
+Assign roles to users and enforce access control based on permissions.
+Authentication:
+
+Secure login system using JWT (access and refresh tokens).
+Middleware handles token validation globally.
+Password Reset:
+
+Allow users to reset their passwords through email-based links.
+Custom Middleware:
+
+JWT Middleware: Validates tokens and enforces authentication for protected routes.
+Request Logging Middleware: Monitors incoming requests for debugging or analytics.
+
+
+======================Below text is for Flow of the Program========================
+
+1.Admin Adds a New User (Step 1: Add User)
+Action: Admin adds a new user (e.g., John) via a dashboard or API.
+Flow:
+Admin submits a form with John's details (username, email, password).
+The request is routed to users/views.py, which validates and processes the data.
+users/models.py creates a new user in the database.
+users/serializers.py validates input and formats responses for APIs.
+John’s user record is created in the database, but he does not yet have a role.
+Files Involved:
+users/views.py: Processes the request to add a user.
+users/models.py: Handles the creation of the user record.
+users/serializers.py: Validates and serializes data for the API response.
+
+
+2.Admin Removes a User (Step 2: Remove User)
+Action: Admin removes a user (e.g., Jane).
+Flow:
+Admin selects the user from a list via the dashboard or an API endpoint.
+The request is sent to users/views.py, which deletes Jane's record from the database using users/models.py.
+The user’s record is removed, and Jane can no longer log in.
+Files Involved:
+users/views.py: Processes the request to remove a user.
+users/models.py: Deletes the user record.
+
+
+3.Admin Updates User Details (Step 3: Add User Details)
+Action: Admin updates John’s details, such as job title and phone number.
+Flow:
+Admin submits an update form with additional details.
+The request is processed by users/views.py, which updates John’s record using users/models.py.
+users/serializers.py validates input for consistency.
+Files Involved:
+users/views.py: Processes the request to update user details.
+users/models.py: Updates the user’s record.
+users/serializers.py: Validates and serializes input/output data.
+
+
+4.Admin Assigns Roles and Permissions (Step 4: Assign Roles and Permissions)
+Action: Admin assigns a role (e.g., Sales Manager) to John.
+Flow:
+Admin selects a role from the dashboard.
+The request is sent to roles/views.py, which assigns the role to John using roles/models.py.
+users/models.py links the user to the assigned role.
+John’s permissions are now derived from the role he holds.
+Files Involved:
+roles/views.py: Handles role assignment.
+roles/models.py: Defines roles and permissions.
+users/models.py: Updates user’s roles.
+
+
+5.Admin Creates New Roles (Step 5: Create New Roles)
+Action: Admin creates a new role (e.g., Regional Manager).
+Flow:
+Admin submits a form with role details (name, permissions).
+The request is processed by roles/views.py, which creates the role using roles/models.py.
+The role is saved in the database and becomes available for assignment.
+Files Involved:
+roles/views.py: Processes the request to create a role.
+roles/models.py: Saves the new role to the database.
+
+
+6.Admin Creates New Permissions (Step 6: Create New Permissions)
+Action: Admin creates a permission (e.g., Can Export Reports).
+Flow:
+Admin submits a form with permission details.
+The request is sent to roles/views.py, which creates the permission using roles/models.py.
+The permission is stored in the database.
+Files Involved:
+roles/views.py: Processes the request to create a permission.
+roles/models.py: Saves the new permission to the database.
+
+
+7.User Login & Token Generation (Step 7: Generate Access and Refresh Tokens)
+Action: John logs into the system.
+Flow:
+John submits login credentials (username/email and password).
+auth/views.py validates the credentials using Django’s authentication system.
+JWT Middleware generates Access and Refresh tokens.
+Tokens are sent back to John’s client for secure storage and use.
+John uses the Access Token for authenticated actions and Refresh Token to get new tokens when needed.
+Files Involved:
+auth/views.py: Handles login and authentication.
+middleware/jwt_middleware.py: Generates and validates tokens.
+
+
+8.Password Reset (Step 8: Reset Password)
+Action: John forgets his password and requests a reset.
+Flow:
+John clicks "Forgot Password" and submits his email.
+auth/views.py handles the request and sends a password reset email.
+auth/services.py generates a secure reset token and email link.
+John clicks the reset link and enters a new password.
+The request is sent back to auth/views.py, which updates John’s password using users/models.py.
+Files Involved:
+auth/views.py: Processes reset requests and form submissions.
+auth/services.py: Handles reset token generation and email sending.
+users/models.py: Updates the password.
+
+
+Overall Flow Summary:
+Admin:
+Manages users, roles, and permissions.
+Handles CRUD operations for users, roles, and permissions.
+Users:
+Log in using JWT for secure access.
+Reset passwords when forgotten.
+Middleware:
+Handles JWT token validation for all authenticated routes.
+Logs incoming requests for debugging and analytics.
+This flow aligns with the modular structure and Django best practices, ensuring each module is focused and maintainable. Let me know if you need further adjustments!

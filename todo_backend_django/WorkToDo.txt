@@ -1,0 +1,14 @@
+Django project work To do on Date ===>20 november..
+
+1.create user_settings table that will users setting information, 
+
+        type of role user has
+
+        user may be different role.
+
+        user should have connectivity with user_settings table.
+
+2.ORM in django , data model.===>Done
+
+
+I have also encoded the user role in jwt token 
